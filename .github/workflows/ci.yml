@@ -1,39 +1,42 @@
-name: ci
-on: [push, pull_request]
+name: CI
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
 jobs:
   test:
-    name: test
+    name: Test (${{ matrix.os }}, Rust ${{ matrix.rust }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-        rust: [1.65.0, stable, beta, nightly]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: ["1.65.0", stable, beta, nightly]
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v1
-    - name: Install Rust
-      uses: hecrj/setup-rust-action@v1
-      with:
-        rust-version: ${{ matrix.rust }}
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+      - name: Build with default features
+        run: cargo build --verbose --all
+      - name: Build with all features
+        run: cargo build --verbose --all --all-features
+      - name: Test with default features
+        run: cargo test --verbose --all
+      - name: Test with all features
+        run: cargo test --verbose --all --all-features
 
-    # Because of all the features, we run build and test twice -- once with
-    # full features and once without any features at all -- to make it more
-    # likely that everything works.
-
-    # Clippy.
-    #
-    # Only do this once with all features enabled.
-    # Only do Clippy on stable for the moment, due to
-    # clippy::unknown_clippy_lints being removed.
-    - if: matrix.rust == 'nightly'
-      run: rustup component add clippy
-    - if: matrix.rust == 'nightyl'
-      run: cargo clippy --all --all-features -- -D warnings
-
-    # Build
-    - run: cargo build --verbose --all --all-features
-    - run: cargo build --verbose --all
-
-    # Test
-    - run: cargo test --verbose --all --all-features
-
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: cargo clippy --all --all-features -- -D warnings

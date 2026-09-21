@@ -61,7 +61,7 @@ pub trait OctetsBuilder {
     ) -> Result<(), Self::AppendError>;
 }
 
-impl<'a, T: OctetsBuilder> OctetsBuilder for &'a mut T {
+impl<T: OctetsBuilder> OctetsBuilder for &mut T {
     type AppendError = T::AppendError;
 
     fn append_slice(
@@ -149,13 +149,13 @@ pub trait Truncate {
     fn truncate(&mut self, len: usize);
 }
 
-impl<'a, T: Truncate> Truncate for &'a mut T {
+impl<T: Truncate> Truncate for &mut T {
     fn truncate(&mut self, len: usize) {
         (*self).truncate(len)
     }
 }
 
-impl<'a> Truncate for &'a [u8] {
+impl Truncate for &[u8] {
     fn truncate(&mut self, len: usize) {
         if len < self.len() {
             *self = &self[..len]
@@ -351,7 +351,7 @@ impl IntoBuilder for Vec<u8> {
 }
 
 #[cfg(feature = "std")]
-impl<'a> IntoBuilder for &'a [u8] {
+impl IntoBuilder for &[u8] {
     type Builder = Vec<u8>;
 
     fn into_builder(self) -> Self::Builder {
@@ -531,4 +531,3 @@ where
 {
     infallible(op())
 }
-
