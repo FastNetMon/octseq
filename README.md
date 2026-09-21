@@ -24,11 +24,11 @@ docs.rs](https://docs.rs/octseq).
 ## Contributing
 
 If you have comments, proposed changes, or would like to contribute,
-please open an issue in the [Github repository]. In particular, if you
+please open an issue in the [GitHub repository]. In particular, if you
 would like to use the crate but it is missing functionality for your use
 case, we would love to hear from you!
 
-[Github repository]: (https://github.com/NLnetLabs/octseq)
+[GitHub repository]: https://github.com/FastNetMon/octseq
 
 ## License
 
